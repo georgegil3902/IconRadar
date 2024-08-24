@@ -19,6 +19,7 @@ void renderGui(GLFWwindow *window, cv::Mat &radarImage)
 
     static float lowThresh = 50.0f;
     static float highThresh = 150.0f;
+    static bool edgeDetectionEnabled = false; // boolean to toggle Canny edge detection
 
     // Start a new ImGui frame
     ImGui_ImplOpenGL3_NewFrame();
@@ -39,10 +40,11 @@ void renderGui(GLFWwindow *window, cv::Mat &radarImage)
     ImVec2 imageSize = ImVec2(radarImage.cols, radarImage.rows);
     float sliderHeight = ImGui::GetFrameHeightWithSpacing();     // Height of the slider widget with spacing
     float textHeight = ImGui::CalcTextSize("Radar Image:").y;    // Height of the text label
+    float checkboxHeight = ImGui::GetFrameHeightWithSpacing();   // Height of the checkbox widget with spacing
     float spacing = ImGui::GetStyle().ItemSpacing.y;             // Vertical spacing between elements
     float windowPadding = ImGui::GetStyle().WindowPadding.y * 2; // Window padding (top and bottom)
 
-    float totalHeight = textHeight + spacing + imageSize.y + spacing + sliderHeight + spacing + sliderHeight + windowPadding;
+    float totalHeight = checkboxHeight + spacing + textHeight + spacing + imageSize.y + spacing + sliderHeight + spacing + sliderHeight + windowPadding;
 
     ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoTitleBar |
                                     ImGuiWindowFlags_NoResize |
@@ -56,13 +58,24 @@ void renderGui(GLFWwindow *window, cv::Mat &radarImage)
     ImGui::SliderFloat("Low Threshold", &lowThresh, 0.0f, 255.0f);
     ImGui::SliderFloat("High Threshold", &highThresh, 0.0f, 255.0f);
 
-    cv::Mat edges = applyCannyEdgeDetection(radarImage, lowThresh, highThresh);
+    // Add a checkbox to enable or disable Canny edge detection
+    ImGui::Checkbox("Enable Edge Detection", &edgeDetectionEnabled);
 
-    // Display the original radar image with edges overlaid
     cv::Mat displayImage;
-    cv::cvtColor(edges, displayImage, cv::COLOR_GRAY2BGR);
-    cv::addWeighted(radarImage, 1.0, displayImage, 0.4, 0, displayImage);
 
+    if (edgeDetectionEnabled)
+    {
+        cv::Mat edges = applyCannyEdgeDetection(radarImage, lowThresh, highThresh);
+
+        // Display the original radar image with edges overlaid
+        cv::cvtColor(edges, displayImage, cv::COLOR_GRAY2BGR);
+        cv::addWeighted(radarImage, 1.0, displayImage, 1.0, 0, displayImage);
+    }
+    else
+    {
+        // If Canny is disabled, just show the original radar image
+        displayImage = radarImage.clone();
+    }
     // Update texture only when radarImage changes
     if (radarTexture == 0 || ImGui::GetFrameCount() != lastRadarImageUpdateFrame)
     {

@@ -14,7 +14,7 @@ int main(int argc, char **argv)
         return -1;
 
     const int windowWidth = 800;
-    const int windowHeight = 880;
+    const int windowHeight = 900;
 
     // Set the window to be non-resizable
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);

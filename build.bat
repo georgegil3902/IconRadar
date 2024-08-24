@@ -1,7 +1,7 @@
 @echo off
 
 rem Create build directory if it doesnt exist yet
-mkdir -p build
+mkdir build
 
 rem Navigate to the build directory
 cd build

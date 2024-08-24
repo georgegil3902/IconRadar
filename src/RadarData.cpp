@@ -90,14 +90,14 @@ cv::Mat plotRadarData(const std::vector<RadarData> &radarData, int width, int he
 
     // Create an image to visualize the radar data
     cv::Mat radarImage = cv::Mat::zeros(height, width, CV_8UC3);
-
+    float radius = 0.5f;
     for (const auto &data : radarData)
     {
         int v = static_cast<int>(height / 2 - (data.x * uScale));
         int h = static_cast<int>(width / 2 + (data.y * uScale));
 
         cv::Scalar color = getColor(data.confidence, threshhold);
-        cv::circle(radarImage, cv::Point(h, v), 0.75, color, -1);
+        cv::circle(radarImage, cv::Point(h, v), radius, color, -1);
     }
 
     return radarImage;
@@ -111,7 +111,7 @@ cv::Mat applyCannyEdgeDetection(const cv::Mat &inputImage, float lowThreshold, f
     cv::cvtColor(inputImage, grayImage, cv::COLOR_BGR2GRAY);
 
     // Apply Canny edge detection
-    cv::Canny(grayImage, edges, lowThreshold, highThreshold);
+    cv::Canny(grayImage, edges, lowThreshold, highThreshold, 3, true);
 
     // Convert the edges to a 3-channel image so it can be displayed with ImGui (which expects 3 channels)
     // cv::Mat edgesColor;
