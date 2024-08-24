@@ -4,9 +4,11 @@
 #include <limits>
 
 // Function to load radar data from a CSV file
+// @param filename: The path to the CSV file containing radar data
+// @return: A vector of RadarData objects loaded from the file
 std::vector<RadarData> loadRadarData(const std::string &filename)
 {
-    std::vector<RadarData> data;
+    std::vector<RadarData> data; // Vector to store the loaded radar data
     std::ifstream file(filename);
     std::string line;
 
@@ -14,7 +16,7 @@ std::vector<RadarData> loadRadarData(const std::string &filename)
     if (!file.is_open())
     {
         std::cerr << "Error: Could not open the file " << filename << std::endl;
-        return data;
+        return data; // Return an empty vector if the file could not be opened
     }
 
     // Read each line from the CSV file
@@ -24,52 +26,60 @@ std::vector<RadarData> loadRadarData(const std::string &filename)
         RadarData radarData;
         char comma;
 
-        // Parse the line and extract radar data
+        // Parse the line and extract radar data values for x, y, and confidence
         if (iss >> radarData.x >> comma >> radarData.y >> comma >> radarData.confidence)
         {
-            data.push_back(radarData);
+            data.push_back(radarData); // Store the parsed data in the vector
         }
     }
 
-    return data;
+    return data; // Return the vector of radar data
 }
 
-// Function to get a continuous color based on confidence
+// Function to map confidence values to colors
+// @param confidence: The confidence value of a radar detection point
+// @param threshhold: The threshold for distinguishing between low and high confidence
+// @return: A cv::Scalar color corresponding to the confidence level
 cv::Scalar getColor(float confidence, float threshhold)
 {
     cv::Scalar color;
-    cv::Scalar blue(255, 0, 0);
-    cv::Scalar green(0, 255, 0);
-    cv::Scalar yellow(0, 255, 255);
-    cv::Scalar red(0, 0, 255);
+    cv::Scalar blue(255, 0, 0);     // Color for low confidence (blue)
+    cv::Scalar green(0, 255, 0);    // Color for moderate confidence (green)
+    cv::Scalar yellow(0, 255, 255); // Color for high confidence (yellow)
+    cv::Scalar red(0, 0, 255);      // Color for very high confidence (red)
 
-    // float thresh = 0.6f;
-    float thresh = threshhold;
-
+    // Determine color based on confidence level
     if (confidence < threshhold)
     {
-        // Interpolate between Green and Yellow (compressed range)
-        float ratio = (confidence) / (threshhold);
+        // Interpolate between blue and green for lower confidence values
+        float ratio = confidence / threshhold;
         color = (1.0f - ratio) * blue + ratio * green;
     }
     else
     {
-        // Interpolate between Yellow and Red (compressed range)
+        // Interpolate between yellow and red for higher confidence values
         float ratio = (confidence - threshhold) / (1.0f - threshhold);
         color = (1.0f - ratio) * yellow + ratio * red;
     }
 
-    return color;
+    return color; // Return the interpolated color
 }
 
+// Function to plot radar data on an image
+// @param radarData: A vector of RadarData objects to be plotted
+// @param width: The width of the output image
+// @param height: The height of the output image
+// @param threshhold: The threshold for distinguishing between low and high confidence
+// @return: An OpenCV Mat representing the radar data as an image
 cv::Mat plotRadarData(const std::vector<RadarData> &radarData, int width, int height, float threshhold)
 {
-    // Calculate the ranges and scaling factors
+    // Determine the bounds of the radar data
     float xMin = std::numeric_limits<float>::max();
     float xMax = std::numeric_limits<float>::lowest();
     float yMin = std::numeric_limits<float>::max();
     float yMax = std::numeric_limits<float>::lowest();
 
+    // Find the minimum and maximum x and y values in the radar data
     for (const auto &data : radarData)
     {
         if (data.x < xMin)
@@ -82,41 +92,47 @@ cv::Mat plotRadarData(const std::vector<RadarData> &radarData, int width, int he
             yMax = data.y;
     }
 
+    // Calculate scaling factors for plotting the radar data onto the image
     float xRange = xMax - xMin;
     float yRange = yMax - yMin;
     float xScale = height / xRange;
     float yScale = width / yRange;
-    float uScale = std::min(xScale, yScale);
+    float uScale = std::min(xScale, yScale); // Use uniform scaling to maintain aspect ratio
 
-    // Create an image to visualize the radar data
+    // Create an empty image with the specified dimensions
     cv::Mat radarImage = cv::Mat::zeros(height, width, CV_8UC3);
-    float radius = 0.5f;
+    float radius = 0.5f; // Radius for plotting points
+
+    // Plot each radar data point on the image
     for (const auto &data : radarData)
     {
+        // Convert radar coordinates to image coordinates
         int v = static_cast<int>(height / 2 - (data.x * uScale));
         int h = static_cast<int>(width / 2 + (data.y * uScale));
 
+        // Determine the color based on confidence and plot the point
         cv::Scalar color = getColor(data.confidence, threshhold);
-        cv::circle(radarImage, cv::Point(h, v), radius, color, -1);
+        cv::circle(radarImage, cv::Point(h, v), radius, color, -1); // Draw the radar point
     }
 
-    return radarImage;
+    return radarImage; // Return the generated image
 }
 
-// Function to apply Canny edge detection
+// Function to apply Canny edge detection to an image
+// @param inputImage: The input image on which to apply edge detection
+// @param lowThreshold: The lower threshold for the hysteresis procedure
+// @param highThreshold: The upper threshold for the hysteresis procedure
+// @return: An OpenCV Mat containing the detected edges as a binary image
 cv::Mat applyCannyEdgeDetection(const cv::Mat &inputImage, float lowThreshold, float highThreshold)
 {
     cv::Mat grayImage, edges;
-    // Convert the image to grayscale
+
+    // Convert the image to grayscale (required for Canny edge detection)
     cv::cvtColor(inputImage, grayImage, cv::COLOR_BGR2GRAY);
 
     // Apply Canny edge detection
     cv::Canny(grayImage, edges, lowThreshold, highThreshold, 3, true);
 
-    // Convert the edges to a 3-channel image so it can be displayed with ImGui (which expects 3 channels)
-    // cv::Mat edgesColor;
-    // cv::cvtColor(edges, edgesColor, cv::COLOR_GRAY2BGR);
-    // Display the original radar image with edges overlaid
-
+    // Return the detected edges as a binary image
     return edges;
 }
