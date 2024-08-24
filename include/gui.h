@@ -9,7 +9,7 @@
 void initializeGui(GLFWwindow *window);
 
 // Function to render ImGui interface
-void renderGui(int width, int height, cv::Mat &radarImage);
+void renderGui(GLFWwindow *window, cv::Mat &radarImage);
 
 // Function to convert BGR OpenCV Image to RGB OpenGL texture
 GLuint matToTexture(const cv::Mat &mat, GLenum minFilter, GLenum magFilter, GLenum wrapFilter);

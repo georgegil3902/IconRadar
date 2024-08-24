@@ -102,3 +102,21 @@ cv::Mat plotRadarData(const std::vector<RadarData> &radarData, int width, int he
 
     return radarImage;
 }
+
+// Function to apply Canny edge detection
+cv::Mat applyCannyEdgeDetection(const cv::Mat &inputImage, float lowThreshold, float highThreshold)
+{
+    cv::Mat grayImage, edges;
+    // Convert the image to grayscale
+    cv::cvtColor(inputImage, grayImage, cv::COLOR_BGR2GRAY);
+
+    // Apply Canny edge detection
+    cv::Canny(grayImage, edges, lowThreshold, highThreshold);
+
+    // Convert the edges to a 3-channel image so it can be displayed with ImGui (which expects 3 channels)
+    // cv::Mat edgesColor;
+    // cv::cvtColor(edges, edgesColor, cv::COLOR_GRAY2BGR);
+    // Display the original radar image with edges overlaid
+
+    return edges;
+}

@@ -22,4 +22,6 @@ cv::Scalar getColor(float confidence, float threshhold);
 // Function to plot the radar data on an image
 cv::Mat plotRadarData(const std::vector<RadarData> &radarData, int width, int height, float threshhold);
 
+cv::Mat applyCannyEdgeDetection(const cv::Mat &inputImage, float lowThreshold, float highThreshold);
+
 #endif // RADARDATA_H

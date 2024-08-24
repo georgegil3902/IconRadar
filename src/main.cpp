@@ -13,14 +13,22 @@ int main(int argc, char **argv)
     if (!glfwInit())
         return -1;
 
-    GLFWwindow *window = glfwCreateWindow(800, 800, "Icon Radar", NULL, NULL);
+    const int windowWidth = 800;
+    const int windowHeight = 880;
 
+    // Set the window to be non-resizable
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+
+    // Create a window
+    GLFWwindow *window = glfwCreateWindow(windowWidth, windowHeight, "Icon Radar", NULL, NULL);
     if (!window)
     {
+        std::cerr << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
-
         return -1;
     }
+
+    // Set Context Current
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1); // Enable vsync
 
@@ -38,12 +46,18 @@ int main(int argc, char **argv)
     float thresh = 0.6f;
     cv::Mat radarImage = plotRadarData(radarData, width, height, thresh);
 
+    // cv::Mat edges = applyCannyEdgeDetection(radarImage, 50.0f, 150.0f);
+    // cv::Mat overlayImage;
+    // cv::cvtColor(edges, overlayImage, cv::COLOR_GRAY2BGR);
+    // cv::addWeighted(radarImage, 0.8, overlayImage, 0.8, 0, overlayImage);
+    // cv::imshow("Edge Detected Image", overlayImage);
+
     while (!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
 
         // Render the ImGui interface
-        renderGui(width, height, radarImage);
+        renderGui(window, radarImage);
 
         glfwSwapBuffers(window);
     }
