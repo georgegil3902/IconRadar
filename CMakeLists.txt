@@ -71,7 +71,3 @@ install(DIRECTORY "${OpenCV_DIR}/x64/vc16/bin/"
 install(DIRECTORY "${CMAKE_SOURCE_DIR}/assets/"
     DESTINATION assets
     FILES_MATCHING PATTERN "*.csv")
-# install(FILES
-#     "${OPENCV_DLL_DIR}/opencv_world4100d.dll"
-#     DESTINATION bin
-# )
