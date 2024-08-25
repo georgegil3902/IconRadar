@@ -11,6 +11,8 @@ IconRadar is an interactive image processing application that uses radar detecti
 - Responsive GUI using ImGui.
 - Cross-platform support (Windows, macOS, Linux).
 
+> Note : The software as of now is only capable of opening one csv files kept in its assets folder with a particular name. The feature to open any csv files from a relative location that comprises of radar data is under progress
+
 ## Requirements
 
 Before setting up the project, ensure you have the following installed on your system:
@@ -96,6 +98,17 @@ If you downloaded it as a zip file, extract it into IconRadar/vendor and rename 
 
 ## Building the project
 
+> Note : You build and install your project in one step using the build.bat file or if you wish to, you can set it up yourself by following the steps below
+
+### Quick Method : Go back to the main directory and run the build.bat file
+
+```bash
+cd ..
+.\build.bat
+```
+
+### Manual Method : Follow the steps below to setup the project manually
+
 Go back to the project's root folder
 Create a folder named `build` in the main directory and navigate to it
 
@@ -118,7 +131,7 @@ To install the project within your build directory run the following code
 cmake --install . --config Debug
 ```
 
-- Note : A system wide release installation is currently not supported. Make sure to use `cmake --install .` with the `--config Debug flag`
+> Note : A system wide release installation is currently not supported. Make sure to use `cmake --install .` with the `--config Debug flag`
 
 ## Lets run the project
 
@@ -131,3 +144,5 @@ The executable file is in build/install/bin folder
 ```
 
 - Or you can navigate to the install directory and run the executable by double clicking it
+
+> Note : Your Working software is comprised within the install directory. Hence you can copy or move the entire install directory to relocate your working software
